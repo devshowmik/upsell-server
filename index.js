@@ -18,7 +18,17 @@ app.get('/', (req, res) => {
 const uri = `mongodb+srv://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@users.95k0mgf.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run() {
-    try { }
+    try {
+        // create a database 
+        const databaseName = client.db('vector-upsell');
+        // create a collection for products
+        const productsCollection = databaseName.collection('products');
+        app.post('/products', async (req, res) => {
+            const productData = req.body;
+            const result = await productsCollection.insertOne(productData);
+            res.send(result)
+        })
+    }
     finally {
 
     }
