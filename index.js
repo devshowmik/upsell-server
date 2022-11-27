@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const corse = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 //middleware
 app.use(corse());
@@ -27,6 +27,19 @@ async function run() {
             const productData = req.body;
             const result = await productsCollection.insertOne(productData);
             res.send(result)
+        })
+        // send product data to client side
+        app.get('/products', async (req, res) => {
+            const productQuery = {};
+            const products = await productsCollection.find(productQuery).toArray();
+            res.send(products)
+        })
+        // delete data from database
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const deleteProduct = await productsCollection.deleteOne(query);
+            res.send(deleteProduct);
         })
     }
     finally {
