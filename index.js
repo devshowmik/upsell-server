@@ -4,6 +4,7 @@ const corse = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { query } = require('express');
 require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_API_KEY);
 //middleware
 app.use(corse());
 app.use(express.json());
@@ -195,6 +196,24 @@ async function run() {
             const result = await blogCollection.deleteOne(query)
             res.send(result)
         })
+        // PAYMENT API
+        app.post("/create-payment-intent", async (req, res) => {
+            const payment = req.body;
+            const price = payment.price;
+            const amount = price * 100;
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                "payment_method_types": [
+                    "card"
+                ]
+            });
+
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        });
     }
     finally {
 
