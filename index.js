@@ -37,6 +37,27 @@ async function run() {
             const users = await usersCollection.find(query).toArray();
             res.send(users)
         })
+        //display all users
+        app.get('/users/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const users = await usersCollection.findOne(query);
+            res.send(users)
+        })
+        //Make admin
+        app.patch('/users/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            console.log(query)
+            const adminData = req.body;
+            const updateData = {
+                $set: {
+                    userRole: adminData.userRole
+                }
+            }
+            const result = await usersCollection.updateOne(query, updateData);
+            res.send(result)
+        })
         // create a collection for products
         const productsCollection = databaseName.collection('products');
         app.post('/products', async (req, res) => {
@@ -105,6 +126,31 @@ async function run() {
             const advertis = await productsCollection.find(query).toArray();
             res.send(advertis);
         })
+        // load category products
+        app.get('/category/:name', async (req, res) => {
+            const category = req.params.name;
+            const query = { category: category };
+            const result = await productsCollection.find(query).toArray();
+            res.send(result)
+        })
+        // create a collection for booking
+        const bookingCollection = databaseName.collection('booking');
+        app.post('/booking', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingCollection.insertOne(booking);
+            res.send(result)
+        })
+        // get booking
+        app.get('/booking', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = { email: req.query.email };
+            }
+            const result = await bookingCollection.find(query).toArray();
+            res.send(result)
+        })
+
+
     }
     finally {
 
