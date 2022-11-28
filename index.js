@@ -174,6 +174,13 @@ async function run() {
             const result = await bookingCollection.find(query).toArray();
             res.send(result)
         })
+        // get all blogs
+        app.get('/booking/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await bookingCollection.findOne(query);
+            res.send(result)
+        })
 
         // blog collection        
         const blogCollection = databaseName.collection('blogs');
@@ -209,11 +216,19 @@ async function run() {
                     "card"
                 ]
             });
-
+            console.log(paymentIntent)
             res.send({
                 clientSecret: paymentIntent.client_secret,
             });
         });
+        //payment collection
+        const paymentCollection = databaseName.collection('payment');
+
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const result = await paymentCollection.insertOne(payment);
+            res.send(result)
+        })
     }
     finally {
 
