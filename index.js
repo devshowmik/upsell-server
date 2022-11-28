@@ -33,11 +33,20 @@ async function run() {
         })
         //display all users
         app.get('/users', async (req, res) => {
-            const query = {};
+            let query = {};
+            if (req.query.role) {
+                query = { userRole: req.query.role }
+            }
             const users = await usersCollection.find(query).toArray();
             res.send(users)
         })
-        //display all users
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = usersCollection.deleteOne(query);
+            res.send(result)
+        })
+        //find user role
         app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email };
@@ -150,7 +159,13 @@ async function run() {
             res.send(result)
         })
 
-
+        // blog collection        
+        const blogCollection = databaseName.collection('blogs');
+        app.post('/blog', async (req, res) => {
+            const blog = req.body;
+            const result = await blogCollection.insertOne(blog);
+            res.send(result)
+        })
     }
     finally {
 
