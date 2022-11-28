@@ -57,7 +57,6 @@ async function run() {
         app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            console.log(query)
             const adminData = req.body;
             const updateData = {
                 $set: {
@@ -65,6 +64,22 @@ async function run() {
                 }
             }
             const result = await usersCollection.updateOne(query, updateData);
+            res.send(result)
+        })
+        //verify users
+        app.put('/users/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const verifyData = req.body;
+            const query = { _id: ObjectId(id) };
+            options = {
+                upsert: true
+            }
+            const updateData = {
+                $set: {
+                    verified: verifyData.verified
+                }
+            }
+            const result = await usersCollection.updateOne(query, updateData, options);
             res.send(result)
         })
         // create a collection for products
@@ -161,9 +176,23 @@ async function run() {
 
         // blog collection        
         const blogCollection = databaseName.collection('blogs');
-        app.post('/blog', async (req, res) => {
+        // add blog
+        app.post('/blogs', async (req, res) => {
             const blog = req.body;
             const result = await blogCollection.insertOne(blog);
+            res.send(result)
+        })
+        // get all blogs
+        app.get('/blogs', async (req, res) => {
+            const query = {};
+            const result = await blogCollection.find(query).toArray();
+            res.send(result)
+        })
+        //delete blog
+        app.delete('/blogs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await blogCollection.deleteOne(query)
             res.send(result)
         })
     }
